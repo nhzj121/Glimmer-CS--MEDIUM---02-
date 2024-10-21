@@ -7,7 +7,7 @@
 #include <string.h>
 
 int j=0;
-//整数部分的十进制变二进制
+//整数部分的二进制变十进制
 double ZS_two_to_ten(char (*zsp)[7],int size)
 {
     int i=0;
@@ -20,7 +20,7 @@ double ZS_two_to_ten(char (*zsp)[7],int size)
     }
     return ZS;
 }
-//小数部分十进制变二进制
+//小数部分二进制变十进制
 double XS_two_to_ten(char (*xsp)[5],int size)
 {
     int i=0;
@@ -74,7 +74,7 @@ int main()
                     xs[j][q] = '\0';
                     printf("整数部分：%s 小数部分：%s\n",zs[j],xs[j]);
                     sum = ZS_two_to_ten(zs,p) + XS_two_to_ten(xs,q);
-                    printf("转化为二进制：%.4f\n",sum);
+                    printf("转化为十进制：%.4f\n",sum);
                     continue;
                 }
             }
