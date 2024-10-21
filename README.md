@@ -91,4 +91,184 @@ int main()
 ## 任务1
 1. 计算机中小数部分的存储受限于二进制，采用小数部分=(0.5)+(0.25)+(0.125).....+(1/2)^n,()表示可能存在,来存储小数。在数位较小，精度较低时可以正常使用。但是由于计算机不可能存储到小数点后无限位，所以对于像0.1，0.2这样的数只能近似存储。所以才会出现0.1+0.2>0.3的情况。
 2. Java的Biglnteger和BigDecimal分别可以适用于任意大小的整数计算和精确的小数或浮点数计算，原理方面和大数运算类似，使用字符串来表示数字。BigDecimal会将小数分为整数部分和小数部分，分别进行运算。<br>Python的Decimal采用三元组来存储数字，原理和Java类似。<br>C语言的gmp.h头文件使用mpz_t类型（一个结构体数组）来存储高精度数字。它使用动态内存，将存储空间随数字大小变动而变动；将数字分部分来存储计算。<br>在我个人看来，高精度小数和大数运算的实现似乎都是利用字符串或数字分块，使得在计算机现有的体系下可以正确表示输入数。然后再分块（字符串就是以一位为一块）进行计算。当然可能还有更复杂的表达方式，但我觉得应该在本质上是一样的。</br>
-3. 
+3.
+```c
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+
+
+double ZS_two_to_ten(char zsp[10],int size)
+{
+    int i=0;
+    int ZS=0;
+    for(;size > 0;size--)
+    {
+        zsp[size-1] = zsp[size-1] - '0';
+        ZS += zsp[size-1] * pow(2,i);
+        i++;
+    }
+    return ZS;
+}
+//小数部分十进制变二进制
+double XS_two_to_ten(char xsp[10],int size)
+{
+    int i=0;
+    double XS=0;
+    for(;size > 0;size--)
+    {
+        xsp[i] = xsp[i] - '0';
+        XS += xsp[i] * pow(0.5 ,i+1);
+        i++;
+    }
+    return XS;
+}
+
+char *ZS_ten_to_two(char zsp[10],int size)
+{
+    int sum=0,j=0,y=0;
+    char temp[33];
+    char *op = (char *)malloc(33 * sizeof(char));
+    int k = size-1;
+    for(int i=0;i < size ;i++)
+    {
+        zsp[i] -= '0';
+        sum += zsp[i] * pow(10 ,k);
+        k--;
+    }
+    while(sum != 0)
+    {
+
+        if(sum%2)
+        {
+            temp[j] = '1';
+            sum /= 2;
+            j++;
+        }
+        else
+        {
+            temp[j] = '0';
+            sum /= 2;
+            j++;
+        }
+    }
+    memset(op,0,33);
+    for(;j>0;j--)
+    {
+        *(op+y) = temp[j-1];
+        y++;
+    }
+    *(op+y) = '\0';
+    return op;
+}
+
+char *XS_ten_to_two(char xsp[10],int size)
+{
+    int count=0;
+    double sum=0;
+    char *opp = (char *)malloc(33 * sizeof(char));
+    for(int i=0;i < size ;i++)
+    {
+        xsp[i] -= '0';
+        sum += xsp[i] * pow(0.1 ,i+1);
+    }
+    memset(opp,0,33);
+    for(;;)
+    {
+        while(sum*2 < 1 && sum < 1)
+        {
+            sum *= 2;
+            *(opp+count) = '0';
+            count++;
+            if(count >= 32)
+            {
+                *(opp+count) = '\0';
+                return opp;
+            }
+        }
+        sum *=2;
+        sum--;
+        *(opp+count) = '1';
+        count++;
+        if(sum == 0 || count >= 32)
+        {
+            *(opp+count) = '\0';
+            return opp;
+        }
+    }
+}
+
+int main()
+{
+    char str[30];
+    char zs[10]={0},xs[10]={0};
+    char *token, *save_ptr;
+    int i=0,p=0,q=0;
+    int count,sz;
+    double sum;
+    gets(str);
+    count = strlen(str);
+    printf("%d\n",count);
+
+    if(str[count-1] == 'B') sz=2;
+    if(str[count-1] == 'D') sz=10;
+
+    token = strtok_r(str, ".",&save_ptr);
+    if(sz == 2)
+    {
+        while(*token != '\0')
+        {
+            zs[p] = *token;
+            token++;
+            p++;
+        }
+        zs[p] = '\0';
+
+        token = strtok_r(NULL, "B",&save_ptr);
+        while(*token != '\0')
+        {
+            xs[q] = *token;
+            token++;
+            q++;
+        }
+        xs[q] = '\0';
+
+        sum = ZS_two_to_ten(zs,p) + XS_two_to_ten(xs,q);
+        printf("%f",sum);
+    }
+
+    if(sz == 10)
+    {
+        while(*token != '\0')
+        {
+            zs[p] = *token;
+            token++;
+            p++;
+        }
+
+        zs[p] = '\0';
+
+        token = strtok_r(NULL, "D",&save_ptr);
+        while(*token != '\0')
+        {
+            xs[q] = *token;
+            token++;
+            q++;
+        }
+        xs[q] = '\0';
+
+        char *zs_two,*xs_two;
+        zs_two = ZS_ten_to_two(zs,p);
+        printf("%s.",zs_two);
+        free(zs_two);
+
+        xs_two = XS_ten_to_two(xs,q);
+        printf("%s",xs_two);
+        free(xs_two);
+    }
+    return 0;
+}
+```
+
