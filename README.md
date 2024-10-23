@@ -271,4 +271,140 @@ int main()
     return 0;
 }
 ```
+## 任务2
+### step1
+```c
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#define ZHONGCHANG 68
+#define MAX 33
 
+typedef struct{
+
+    unsigned char count;
+    unsigned char sign;
+    char sz;
+    char zs[MAX];
+    char xs[MAX];
+
+}PointFixedNum;
+
+char *ZS_two_to_ten(char *a,int size)
+{
+    int i=0,j=0,sum=0;
+    int ZS[MAX]={0};
+    char *result = (char *)malloc(MAX * sizeof(char));
+    for(;size > 0;size--)
+    {
+        *(a+size-1) = *(a+size-1) - '0';
+        sum += *(a+size-1) * pow(2,i);
+        i++;
+    }
+    ZS[0] = 0;
+    i=0;
+    while(sum !=0)
+    {
+        ZS[i] = sum%10;
+        sum /= 10;
+        i++;
+    }
+    for(int j=0;j<i;j++)
+    {
+        *(result+j) = ZS[i-j-1] + '0';
+    }
+    *(result+i) = '\0';
+    return result;
+}
+//小数部分二进制变十进制
+char *XS_two_to_ten(char *b,int size)
+{
+    int i=0;
+    char XS[MAX]={0};
+    char *Result = (char *)malloc(MAX * sizeof(char));
+    double sum=0;
+    for(;i<size;i++)
+    {
+        *(b+i) = *(b+i) - '0';
+        sum += *(b+i) * pow(0.5,i+1);
+    }
+    i=0;
+    while(sum != 0)
+    {
+        sum *= 10;
+        int SUM = sum;
+        sum -= SUM;
+        *(Result+i) = SUM + '0';
+        i++;
+    }
+    *(Result+i) = '\0';
+    return Result;
+}
+
+PointFixedNum init(char str[ZHONGCHANG])
+{
+    PointFixedNum t;
+    char *token, *save_ptr;
+    int p=0,q=0,sum=0;
+    t.count = strlen(str);
+    if(str[0] == '-') t.sign=0;
+    if(str[0] != '-') t.sign=1;
+    t.sz = str[t.count-1];
+    token = strtok_r(str, ".",&save_ptr);
+    if(!t.sign) token++;
+    if(t.sz == 'B')
+    {
+        while(*token != '\0')
+        {
+            t.zs[p] = *token;
+            token++;
+            p++;
+        }
+        t.zs[p] = '\0';
+
+        token = strtok_r(NULL, "B",&save_ptr);
+        while(*token != '\0')
+        {
+            t.xs[q] = *token;
+            token++;
+            q++;
+        }
+        t.xs[q] = '\0';
+
+
+        char* tp = ZS_two_to_ten(t.zs,p);
+        for(int y=0;y< p+1;y++)
+        {
+            t.zs[y] = tp[y];
+        }
+        free(tp);
+
+        char* tpp = XS_two_to_ten(t.xs,q);
+        for(int u=0;u< q+1;u++)
+        {
+            t.xs[u] = tpp[u];
+        }
+        free(tpp);
+        t.sz = 'D';
+        return t;
+    }
+}
+
+int main()
+{
+    char Sign;
+    char str[ZHONGCHANG];
+    PointFixedNum number;
+
+    for(int i=0;i<3;i++)
+    {
+        gets(str);
+        number = init(str);
+        Sign = number.sign ? '\0': '-';
+        printf("%c%s.%s%c\n",Sign,number.zs,number.xs,number.sz);
+    }
+    return 0;
+}
+```
