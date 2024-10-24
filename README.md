@@ -246,131 +246,120 @@ int main() {
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#define ZHONGCHANG 68
-#define MAX 33
 
-typedef struct{
+#define ZHONGCHANG 68 // 定义常量，用于指定字符串的最大长度
+#define MAX 33 // 定义常量，用于指定数组的最大长度
 
-    unsigned char count;
-    unsigned char sign;
-    char sz;
-    char zs[MAX];
-    char xs[MAX];
+// 定义结构体，用于存储定点数的信息
+typedef struct {
+    unsigned char count; // 计数，存储字符串长度
+    unsigned char sign;  // 符号，0表示负数，1表示正数
+    char sz;             // 小数点位置
+    char zs[MAX];        // 整数部分的字符串表示
+    char xs[MAX];        // 小数部分的字符串表示
+} PointFixedNum;
 
-}PointFixedNum;
-
-char *ZS_two_to_ten(char *a,int size)
-{
-    int i=0,j=0,sum=0;
-    int ZS[MAX]={0};
-    char *result = (char *)malloc(MAX * sizeof(char));
-    for(;size > 0;size--)
-    {
-        *(a+size-1) = *(a+size-1) - '0';
-        sum += *(a+size-1) * pow(2,i);
+// 将二进制字符串转换为十进制字符串
+char *ZS_two_to_ten(char *a, int size) {
+    int i = 0, j = 0, sum = 0;
+    int ZS[MAX] = {0}; // 用于存储转换后的十进制数字
+    char *result = (char *)malloc(MAX * sizeof(char)); // 分配内存存储结果
+    for (; size > 0; size--) {
+        *(a + size - 1) = *(a + size - 1) - '0'; // 将字符转换为对应的整数
+        sum += *(a + size - 1) * pow(2, i); // 计算二进制数对应的十进制值
         i++;
     }
-    ZS[0] = 0;
-    i=0;
-    while(sum !=0)
-    {
-        ZS[i] = sum%10;
-        sum /= 10;
+    ZS[0] = 0; // 初始化ZS数组
+    i = 0;
+    while (sum != 0) {
+        ZS[i] = sum % 10; // 取余数作为当前位的数字
+        sum /= 10; // 除以10，准备计算下一位
         i++;
     }
-    for(int j=0;j<i;j++)
-    {
-        *(result+j) = ZS[i-j-1] + '0';
+    for (j = 0; j < i; j++) {
+        *(result + j) = ZS[i - j - 1] + '0'; // 将数字转换为字符并存储到结果字符串中
     }
-    *(result+i) = '\0';
-    return result;
-}
-//小数部分二进制变十进制
-char *XS_two_to_ten(char *b,int size)
-{
-    int i=0;
-    char XS[MAX]={0};
-    char *Result = (char *)malloc(MAX * sizeof(char));
-    double sum=0;
-    for(;i<size;i++)
-    {
-        *(b+i) = *(b+i) - '0';
-        sum += *(b+i) * pow(0.5,i+1);
-    }
-    i=0;
-    while(sum != 0)
-    {
-        sum *= 10;
-        int SUM = sum;
-        sum -= SUM;
-        *(Result+i) = SUM + '0';
-        i++;
-    }
-    *(Result+i) = '\0';
-    return Result;
+    *(result + i) = '\0'; // 添加字符串结束符
+    return result; // 返回转换后的十进制字符串
 }
 
-PointFixedNum init(char str[ZHONGCHANG])
-{
+// 将小数部分的二进制字符串转换为十进制字符串
+char *XS_two_to_ten(char *b, int size) {
+    int i = 0;
+    char XS[MAX] = {0}; // 用于存储转换后的十进制数字
+    char *Result = (char *)malloc(MAX * sizeof(char)); // 分配内存存储结果
+    double sum = 0; // 用于计算小数部分的十进制值
+    for (; i < size; i++) {
+        *(b + i) = *(b + i) - '0'; // 将字符转换为对应的整数
+        sum += *(b + i) * pow(0.5, i + 1); // 计算二进制小数对应的十进制值
+    }
+    i = 0;
+    while (sum != 0) {
+        sum *= 10; // 乘以10，准备计算下一位
+        int SUM = sum; // 取整数部分作为当前位的数字
+        sum -= SUM; // 减去整数部分，准备计算下一位
+        *(Result + i) = SUM + '0'; // 将数字转换为字符并存储到结果字符串中
+        i++;
+    }
+    *(Result + i) = '\0'; // 添加字符串结束符
+    return Result; // 返回转换后的十进制字符串
+}
+
+// 初始化PointFixedNum结构体
+PointFixedNum init(char str[ZHONGCHANG]) {
     PointFixedNum t;
     char *token, *save_ptr;
-    int p=0,q=0,sum=0;
-    t.count = strlen(str);
-    if(str[0] == '-') t.sign=0;
-    if(str[0] != '-') t.sign=1;
-    t.sz = str[t.count-1];
-    token = strtok_r(str, ".",&save_ptr);
-    if(!t.sign) token++;
-    if(t.sz == 'B')
-    {
-        while(*token != '\0')
-        {
+    int p = 0, q = 0, sum = 0;
+    t.count = strlen(str); // 计算字符串长度
+    if (str[0] == '-') t.sign = 0; // 如果字符串以'-'开头，设置符号为负
+    else t.sign = 1; // 否则设置符号为正
+    t.sz = str[t.count - 1]; // 获取字符串最后一个字符
+    token = strtok_r(str, ".", &save_ptr); // 使用strtok_r分割字符串
+    if (!t.sign) token++; // 如果符号为负，跳过'-'字符
+    if (t.sz == 'B') {
+        // 处理整数部分
+        while (*token != '\0') {
             t.zs[p] = *token;
             token++;
             p++;
         }
         t.zs[p] = '\0';
-
-        token = strtok_r(NULL, "B",&save_ptr);
-        while(*token != '\0')
-        {
+        // 处理小数部分
+        token = strtok_r(NULL, "B", &save_ptr);
+        while (*token != '\0') {
             t.xs[q] = *token;
             token++;
             q++;
         }
         t.xs[q] = '\0';
-
-
-        char* tp = ZS_two_to_ten(t.zs,p);
-        for(int y=0;y< p+1;y++)
-        {
+        // 将整数部分的二进制字符串转换为十进制字符串
+        char *tp = ZS_two_to_ten(t.zs, p);
+        for (int y = 0; y < p + 1; y++) {
             t.zs[y] = tp[y];
         }
         free(tp);
-
-        char* tpp = XS_two_to_ten(t.xs,q);
-        for(int u=0;u< q+1;u++)
-        {
+        // 将小数部分的二进制字符串转换为十进制字符串
+        char *tpp = XS_two_to_ten(t.xs, q);
+        for (int u = 0; u < q + 1; u++) {
             t.xs[u] = tpp[u];
         }
         free(tpp);
-        t.sz = 'D';
+        t.sz = 'D'; // 更新小数点位置为'D'
         return t;
     }
 }
 
-int main()
-{
+int main() {
     char Sign;
     char str[ZHONGCHANG];
     PointFixedNum number;
 
-    for(int i=0;i<3;i++)
-    {
-        gets(str);
-        number = init(str);
-        Sign = number.sign ? '\0': '-';
-        printf("%c%s.%s%c\n",Sign,number.zs,number.xs,number.sz);
+    // 循环三次，读取字符串并初始化PointFixedNum结构体
+    for (int i = 0; i < 3; i++) {
+        gets(str); // 读取字符串
+        number = init(str); // 初始化结构体
+        Sign = number.sign ? '\0' : '-'; // 根据符号设置Sign变量
+        printf("%c%s.%s%c\n", Sign, number.zs, number.xs, number.sz); // 打印结果
     }
     return 0;
 }
