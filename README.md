@@ -6,87 +6,75 @@
 #include <math.h>
 #include <string.h>
 
-int j=0;
-//整数部分的二进制变十进制
-double ZS_two_to_ten(char (*zsp)[7],int size)
-{
-    int i=0;
-    int ZS=0;
-    for(;size > 0;size--)
-    {
-        zsp[j][size-1] = zsp[j][size-1] - '0';
-        ZS += zsp[j][size-1] * pow(2,i);
+int j = 0; // 用于记录当前处理的数组索引
+
+// 整数部分的二进制转十进制函数
+double ZS_two_to_ten(char (*zsp)[7], int size) {
+    int i = 0;
+    int ZS = 0; // 用于存储转换后的十进制整数部分
+    for (; size > 0; size--) {
+        zsp[j][size - 1] = zsp[j][size - 1] - '0'; // 将字符转换为对应的整数
+        ZS += zsp[j][size - 1] * pow(2, i); // 计算二进制数对应的十进制值
         i++;
     }
-    return ZS;
+    return ZS; // 返回计算结果
 }
-//小数部分二进制变十进制
-double XS_two_to_ten(char (*xsp)[5],int size)
-{
-    int i=0;
-    float XS=0;
-    for(;size > 0;size--)
-    {
-        xsp[j][i] = xsp[j][i] - '0';
-        XS += xsp[j][i] * pow(0.5 ,i+1);
+
+// 小数部分的二进制转十进制函数
+double XS_two_to_ten(char (*xsp)[5], int size) {
+    int i = 0;
+    float XS = 0; // 用于存储转换后的十进制小数部分
+    for (; size > 0; size--) {
+        xsp[j][i] = xsp[j][i] - '0'; // 将字符转换为对应的整数
+        XS += xsp[j][i] * pow(0.5, i + 1); // 计算二进制数对应的十进制值
         i++;
     }
-    return XS;
+    return XS; // 返回计算结果
 }
 
-int main()
-{
-    char a[15][20];
+int main() {
+    char a[15][20]; // 用于存储从文件中读取的每一行数据
 
-    double sum;
-    char zs[5][7],xs[5][5];
-    FILE *fp;
-    fp=fopen("C:\\Users\\19522\\Desktop\\CS_M_02.txt","r");
-    while(fscanf(fp,"%20[^\n]\n",a[j]) == 1)//[^\n]表除了\n的所有字符
-    {
-        int count=0;
-        count = strlen(a[j]);
-        if(a[j][count-1] == 'B')
-        {
-            int p=0,q=0,duandian=0;
-            for(int y=2;y<count ;y++)
-            {
-                if(a[j][y] != '.' && duandian == 0)
-                {
-                    zs[j][p] = a[j][y];
+    double sum; // 用于存储转换后的十进制数
+    char zs[5][7], xs[5][5]; // 用于存储二进制的整数和小数部分
+    FILE *fp; // 文件指针
+    fp = fopen("C:\\Users\\19522\\Desktop\\CS_M_02.txt", "r"); // 打开文件
+    while (fscanf(fp, "%20[^\n]\n", a[j]) == 1) { // 读取每一行数据，直到文件末尾
+        int count = 0;
+        count = strlen(a[j]); // 获取当前行的长度
+        if (a[j][count - 1] == 'B') { // 如果行尾是'B'，表示这是一个二进制数
+            int p = 0, q = 0, duandian = 0; // 初始化索引和点的标志
+            for (int y = 2; y < count; y++) { // 从第三个字符开始处理
+                if (a[j][y] != '.' && duandian == 0) { // 如果不是点，且之前没有遇到过点
+                    zs[j][p] = a[j][y]; // 存储整数部分的字符
                     p++;
                     continue;
-                }
-                else if(a[j][y] == '.')
-                {
-                    duandian =1;
+                } else if (a[j][y] == '.') { // 如果遇到点
+                    duandian = 1; // 设置点的标志
                     continue;
-                }
-                else if(a[j][y] != 'B' && duandian == 1)
-                {
-                    xs[j][q] = a[j][y];
+                } else if (a[j][y] != 'B' && duandian == 1) { // 如果不是'B'，且之前遇到过点
+                    xs[j][q] = a[j][y]; // 存储小数部分的字符
                     q++;
                     continue;
-                }
-                else if(a[j][y] == 'B')
-                {
-                    zs[j][p] = '\0';
-                    xs[j][q] = '\0';
-                    printf("整数部分：%s 小数部分：%s\n",zs[j],xs[j]);
-                    sum = ZS_two_to_ten(zs,p) + XS_two_to_ten(xs,q);
-                    printf("转化为十进制：%.4f\n",sum);
+                } else if (a[j][y] == 'B') { // 如果遇到'B'，表示二进制数结束
+                    zs[j][p] = '\0'; // 整数部分结束
+                    xs[j][q] = '\0'; // 小数部分结束
+                    printf("整数部分：%s 小数部分：%s\n", zs[j], xs[j]); // 打印二进制的整数和小数部分
+                    sum = ZS_two_to_ten(zs, p) + XS_two_to_ten(xs, q); // 转换为十进制并相加
+                    printf("转化为十进制：%.4f\n", sum); // 打印十进制结果
                     continue;
                 }
             }
         }
-        printf("%s",a[j]);
-        j++;
-        printf("\n");
+        printf("%s", a[j]); // 打印当前行的内容
+        j++; // 移动到下一行
+        printf("\n"); // 换行
         continue;
     }
-    fclose(fp);
-    return 0;
+    fclose(fp); // 关闭文件
+    return 0; 
 }
+
 ```
 ## 任务1
 1. 计算机中小数部分的存储受限于二进制，采用小数部分=(0.5)+(0.25)+(0.125).....+(1/2)^n,()表示可能存在,来存储小数。在数位较小，精度较低时可以正常使用。但是由于计算机不可能存储到小数点后无限位，所以对于像0.1，0.2这样的数只能近似存储。所以才会出现0.1+0.2>0.3的情况。
@@ -99,176 +87,155 @@ int main()
 #include <string.h>
 #include <math.h>
 
-
-double ZS_two_to_ten(char zsp[10],int size)
-{
-    int i=0;
-    int ZS=0;
-    for(;size > 0;size--)
-    {
-        zsp[size-1] = zsp[size-1] - '0';
-        ZS += zsp[size-1] * pow(2,i);
+// 将二进制字符串转换为十进制数
+double ZS_two_to_ten(char zsp[10], int size) {
+    int i = 0;
+    int ZS = 0;
+    for (; size > 0; size--) {
+        zsp[size - 1] = zsp[size - 1] - '0'; // 将字符转换为对应的整数
+        ZS += zsp[size - 1] * pow(2, i); // 计算二进制数对应的十进制值
         i++;
     }
-    return ZS;
-}
-//小数部分十进制变二进制
-double XS_two_to_ten(char xsp[10],int size)
-{
-    int i=0;
-    double XS=0;
-    for(;size > 0;size--)
-    {
-        xsp[i] = xsp[i] - '0';
-        XS += xsp[i] * pow(0.5 ,i+1);
-        i++;
-    }
-    return XS;
+    return ZS; // 返回计算结果
 }
 
-char *ZS_ten_to_two(char zsp[10],int size)
-{
-    int sum=0,j=0,y=0;
+// 将二进制小数部分转换为十进制小数
+double XS_two_to_ten(char xsp[10], int size) {
+    int i = 0;
+    double XS = 0;
+    for (; size > 0; size--) {
+        xsp[i] = xsp[i] - '0'; // 将字符转换为对应的整数
+        XS += xsp[i] * pow(0.5, i + 1); // 计算二进制小数部分对应的十进制值
+        i++;
+    }
+    return XS; // 返回计算结果
+}
+
+// 将十进制字符串转换为二进制字符串
+char *ZS_ten_to_two(char zsp[10], int size) {
+    int sum = 0, j = 0, y = 0;
     char temp[33];
-    char *op = (char *)malloc(33 * sizeof(char));
-    int k = size-1;
-    for(int i=0;i < size ;i++)
-    {
-        zsp[i] -= '0';
-        sum += zsp[i] * pow(10 ,k);
+    char *op = (char *)malloc(33 * sizeof(char)); // 分配内存存储结果
+    int k = size - 1;
+    for (int i = 0; i < size; i++) {
+        zsp[i] -= '0'; // 将字符转换为对应的整数
+        sum += zsp[i] * pow(10, k); // 计算十进制数的值
         k--;
     }
-    while(sum != 0)
-    {
-
-        if(sum%2)
-        {
-            temp[j] = '1';
+    while (sum != 0) {
+        if (sum % 2) {
+            temp[j] = '1'; // 进行除以2的取余操作，生成二进制数
             sum /= 2;
             j++;
-        }
-        else
-        {
+        } else {
             temp[j] = '0';
             sum /= 2;
             j++;
         }
     }
-    memset(op,0,33);
-    for(;j>0;j--)
-    {
-        *(op+y) = temp[j-1];
+    memset(op, 0, 33); // 初始化结果字符串
+    for (; j > 0; j--) {
+        *(op + y) = temp[j - 1]; // 将临时数组中的二进制数反转并复制到结果字符串
         y++;
     }
-    *(op+y) = '\0';
-    return op;
+    *(op + y) = '\0'; // 添加字符串结束符
+    return op; // 返回结果字符串
 }
 
-char *XS_ten_to_two(char xsp[10],int size)
-{
-    int count=0;
-    double sum=0;
-    char *opp = (char *)malloc(33 * sizeof(char));
-    for(int i=0;i < size ;i++)
-    {
-        xsp[i] -= '0';
-        sum += xsp[i] * pow(0.1 ,i+1);
+// 将十进制小数部分转换为二进制小数
+char *XS_ten_to_two(char xsp[10], int size) {
+    int count = 0;
+    double sum = 0;
+    char *opp = (char *)malloc(33 * sizeof(char)); // 分配内存存储结果
+    for (int i = 0; i < size; i++) {
+        xsp[i] -= '0'; // 将字符转换为对应的整数
+        sum += xsp[i] * pow(0.1, i + 1); // 计算十进制小数部分的值
     }
-    memset(opp,0,33);
-    for(;;)
-    {
-        while(sum*2 < 1 && sum < 1)
-        {
+    memset(opp, 0, 33); // 初始化结果字符串
+    for (;;) {
+        while (sum * 2 < 1 && sum < 1) {
             sum *= 2;
-            *(opp+count) = '0';
+            *(opp + count) = '0'; // 进行乘以2的操作，生成二进制小数
             count++;
-            if(count >= 32)
-            {
-                *(opp+count) = '\0';
+            if (count >= 32) {
+                *(opp + count) = '\0'; // 如果超过最大长度，添加字符串结束符并返回
                 return opp;
             }
         }
-        sum *=2;
-        sum--;
-        *(opp+count) = '1';
+        sum *= 2;
+        sum--; // 进行乘以2并减1的操作，生成二进制小数
+        *(opp + count) = '1';
         count++;
-        if(sum == 0 || count >= 32)
-        {
-            *(opp+count) = '\0';
+        if (sum == 0 || count >= 32) {
+            *(opp + count) = '\0'; // 如果小数部分为0或超过最大长度，添加字符串结束符并返回
             return opp;
         }
     }
 }
 
-int main()
-{
+int main() {
     char str[30];
-    char zs[10]={0},xs[10]={0};
+    char zs[10] = {0}, xs[10] = {0};
     char *token, *save_ptr;
-    int i=0,p=0,q=0;
-    int count,sz;
+    int i = 0, p = 0, q = 0;
+    int count, sz;
     double sum;
-    gets(str);
-    count = strlen(str);
-    printf("%d\n",count);
+    gets(str); // 读取输入字符串
+    count = strlen(str); // 计算字符串长度
+    printf("%d\n", count); // 打印字符串长度
 
-    if(str[count-1] == 'B') sz=2;
-    if(str[count-1] == 'D') sz=10;
+    if (str[count - 1] == 'B') sz = 2; // 检查字符串是否以'B'结尾，如果是，则为二进制
+    if (str[count - 1] == 'D') sz = 10; // 检查字符串是否以'D'结尾，如果是，则为十进制
 
-    token = strtok_r(str, ".",&save_ptr);
-    if(sz == 2)
-    {
-        while(*token != '\0')
-        {
+    token = strtok_r(str, ".", &save_ptr); // 使用strtok_r分割字符串
+    if (sz == 2) {
+        // 如果是二进制字符串
+        while (*token != '\0') {
             zs[p] = *token;
             token++;
             p++;
         }
-        zs[p] = '\0';
+        zs[p] = '\0'; // 添加字符串结束符
 
-        token = strtok_r(NULL, "B",&save_ptr);
-        while(*token != '\0')
-        {
+        token = strtok_r(NULL, "B", &save_ptr); // 继续分割字符串
+        while (*token != '\0') {
             xs[q] = *token;
             token++;
             q++;
         }
-        xs[q] = '\0';
+        xs[q] = '\0'; // 添加字符串结束符
 
-        sum = ZS_two_to_ten(zs,p) + XS_two_to_ten(xs,q);
-        printf("%f",sum);
+        sum = ZS_two_to_ten(zs, p) + XS_two_to_ten(xs, q); // 计算二进制字符串对应的十进制值
+        printf("%f", sum); // 打印结果
     }
 
-    if(sz == 10)
-    {
-        while(*token != '\0')
-        {
+    if (sz == 10) {
+        // 如果是十进制字符串
+        while (*token != '\0') {
             zs[p] = *token;
             token++;
             p++;
         }
+        zs[p] = '\0'; // 添加字符串结束符
 
-        zs[p] = '\0';
-
-        token = strtok_r(NULL, "D",&save_ptr);
-        while(*token != '\0')
-        {
+        token = strtok_r(NULL, "D", &save_ptr); // 继续分割字符串
+        while (*token != '\0') {
             xs[q] = *token;
             token++;
             q++;
         }
-        xs[q] = '\0';
+        xs[q] = '\0'; // 添加字符串结束符
 
-        char *zs_two,*xs_two;
-        zs_two = ZS_ten_to_two(zs,p);
-        printf("%s.",zs_two);
-        free(zs_two);
+        char *zs_two, *xs_two;
+        zs_two = ZS_ten_to_two(zs, p); // 将十进制整数部分转换为二进制
+        printf("%s.", zs_two); // 打印二进制整数部分
+        free(zs_two); // 释放内存
 
-        xs_two = XS_ten_to_two(xs,q);
-        printf("%s",xs_two);
-        free(xs_two);
+        xs_two = XS_ten_to_two(xs, q); // 将十进制小数部分转换为二进制
+        printf("%s", xs_two); // 打印二进制小数部分
+        free(xs_two); // 释放内存
     }
-    return 0;
+    return 0; 
 }
 ```
 ## 任务2
